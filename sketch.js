@@ -47,7 +47,7 @@ function setup() {
 	// cell1.display();
 
 
-setInterval(movePlayhead,100);
+//setInterval(movePlayhead,100);
 
 }
 

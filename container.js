@@ -11,10 +11,20 @@ var Container = function(x,y,width,height,color,numCells) {
 
 	this.initCells = function() {
 			for ( var i=0; i<this.numCells; i++) {
-				this.cells[i] = new Cell();
+				var x= this._x + (this._width/20);
+				var y= this._y + ((this._height/this.numCells)*i);
+				var width = this._width * 1.0;
+				var height = this._height * 0.25;
+				
+				this.cells[i] = new Cell(x, y, width, height);
+				console.log(this.cells[i]);
 			}
 	},
 
+
+	this.moveCells = function() {
+
+	},
 
 	this.display = function() {
 		var that = this;
@@ -25,7 +35,11 @@ var Container = function(x,y,width,height,color,numCells) {
 				// console.log(cell.cellColor);
 				// console.log(index);
 				fill(cell.cellColor);
-			rect(that._x+(that._width/20), (that._y)+((that._height/that.numCells)*index), that._width*0.9, that._height*.25);
+				strokeWeight(0.5);
+				// console.log(cell.cellColor);
+				// rect(that._x+(that._width/20), (that._y)+((that._height/that.numCells)*index), that._width*0.9, that._height*.25);
+				rect(cell.x-5,cell.y,cell.width,cell.height);
+				//rect(250,100,90,80);
 			}) 
 			
 		
@@ -52,6 +66,7 @@ var Container = function(x,y,width,height,color,numCells) {
 		console.log(mouseY);
 		if(this._y > 0 && this._y < (600 - this._height)) {
 		this._y = mouseY;
+		this.moveCells();
 		};
 
 		if (this._y < 10) {this._y=10};
@@ -111,9 +126,13 @@ var Container = function(x,y,width,height,color,numCells) {
 }
 
 
-var Cell = function() {
-	this.cellColor=[200,200,200];
-
+var Cell = function(x, y, width, height) {
+	this.x 			= 	x;
+	this.y 			= 	y;
+	this.width 		=	width;
+	this.height 	= 	height;
+	this.cellColor 	=	[200,200,200];
+	console.log(this.width);
 	// this.display = function() {
 	// 	fill(this._color);
 	// 	rect(this._x, this._y, this._width, this._height);
