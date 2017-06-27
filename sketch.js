@@ -24,6 +24,8 @@ var height=600;
 
 var playHead_x = 10;
 var playHeadPaused = false;
+var playHeadColor = [40,40,80,100];
+var soundPath = "audio/2017clapOS-DG3__1.mp3";
 
 function setup() {
 	 
@@ -36,7 +38,7 @@ function setup() {
 	strokeWeight(3);
 	stroke(30,100,100);
 	for (var i = 0; i<5;i++) {
-		containers[i] = new Container(50+(i*100),100,100,320,[30,100,100],4);
+		containers[i] = new Container(50+(i*100),100,100,320,[30,100,100],4,soundPath);
 	}
 
 	// container1 = new Container(100,100,100,500,);
@@ -47,7 +49,7 @@ function setup() {
 	// cell1.display();
 
 
-//setInterval(movePlayhead,100);
+setInterval(movePlayhead,50);
 
 }
 
@@ -59,7 +61,7 @@ function draw() {
 
 
 function mouseClicked() {
-	
+	// containers[0].playSound();
 }
 
 function mouseDragged() {
@@ -74,7 +76,9 @@ background(30,100,100);
 containers.forEach(function(container) {
 		container.checkClick();
 		if(container.draggable) {
-		container.move();
+			console.log("trig movecells");
+			container.move();
+		container.moveCells();
 		}
 	})
 
@@ -84,6 +88,7 @@ containers.forEach(function(container) {
 	})
 		strokeWeight(20);
 	stroke(200,30,30,100);
+	stroke(playHeadColor);
 	line(playHead_x,0,playHead_x,height);
 }
 
@@ -116,8 +121,9 @@ var activeColumn;
 		})
 
 	containers.forEach(function(container,index) {
-	if(index === activeColumn) {
-		container.makeRed();
+	if(index === activeColumn ) {
+		
+		container.checkCellVertical();
 	}
 	else {
 		container.makeWhite();
@@ -135,7 +141,7 @@ var activeColumn;
 
 
 	strokeWeight(20);
-	stroke(200,30,30,100);
+	stroke(playHeadColor);
 	line(playHead_x,0,playHead_x,height);	
 
 

@@ -1,4 +1,4 @@
-var Container = function(x,y,width,height,color,numCells) {
+var Container = function(x,y,width,height,color,numCells,sound) {
 	this._x = x;
 	this._y = y;
 	this._width = width;
@@ -8,6 +8,7 @@ var Container = function(x,y,width,height,color,numCells) {
 	this.draggable = false;
 	this.cells=[];
 	this.currentColumn = 0;
+	this.sound = new Howl({src:['audio/2017clapOS-DG3__1.mp3']});
 
 	this.initCells = function() {
 			for ( var i=0; i<this.numCells; i++) {
@@ -15,16 +16,54 @@ var Container = function(x,y,width,height,color,numCells) {
 				var y= this._y + ((this._height/this.numCells)*i);
 				var width = this._width * 1.0;
 				var height = this._height * 0.25;
-				
-				this.cells[i] = new Cell(x, y, width, height);
-				console.log(this.cells[i]);
+				// var sound = new Howl({src:[this.sound] });
+				this.cells[i] = new Cell(x, y, width, height,sound);
+				// console.log(this.cells[i]);
 			}
 	},
 
+	this.playSound = function () {
+
+		this.sound.play();
+	},
 
 	this.moveCells = function() {
+		var that = this;
+			console.log(this._y);
+			console.log(that._y);
+			that.cells.forEach(function(cell,index){
+				// console.log(index);
+				cell.x= that._x + (that._width/20);
+				cell.y= that._y + ((that._height/that.numCells)*index);
+				cell.width = that._width * 1.0;
+				cell.height = that._height * 0.25;
+				console.log(cell.y);
+				})
+			
+
+			// that.settleCellsInGrid();
+			// that.display();
+
+
+	
+	},
+
+	this.checkCellVertical = function() {
+		var that = this;
+		this.cells.forEach(function(cell,index){
+			if(cell.y >200 && cell.y < 300 && !cell.playing) {
+				cell.cellColor = [200,0,0];
+				// console.log(cell.sound);
+				cell.playing = true;
+				 that.playSound();
+				 // console.log(cell.cellPlayingFalse()); 	
+
+				   setTimeout(cell.cellPlayingFalse.bind(cell),1000);
+			}
+		})	
 
 	},
+
 
 	this.display = function() {
 		var that = this;
@@ -36,6 +75,7 @@ var Container = function(x,y,width,height,color,numCells) {
 				// console.log(index);
 				fill(cell.cellColor);
 				strokeWeight(0.5);
+				// console.log(cell.x);
 				// console.log(cell.cellColor);
 				// rect(that._x+(that._width/20), (that._y)+((that._height/that.numCells)*index), that._width*0.9, that._height*.25);
 				rect(cell.x-5,cell.y,cell.width,cell.height);
@@ -49,7 +89,7 @@ var Container = function(x,y,width,height,color,numCells) {
 	this.checkClick = function() {
 		if(this.checkRect(mouseX, mouseY,this._x,this._y,this._width,this._height)) {
 				this.draggable = true;
-				console.log(this.draggable);
+				// console.log(this.draggable);
 		}
 	},
 
@@ -83,6 +123,15 @@ var Container = function(x,y,width,height,color,numCells) {
 		if(this._y > 270 && this._y <360 ) 	{this._y = 260};
 	},
 
+	this.settleCellsInGrid = function() {
+		this.cells.forEach(function(cell,index){
+			if(cell.y > 0 && cell.y < 90 ) 	{cell.y = 20};
+			if(cell.y > 90 && cell.y <180 ) 	{cell.y = 100};
+			if(cell.y > 180 && cell.y <270 ) 	{cell.y = 180};
+			if(cell.y > 270 && cell.y <360 ) 	{cell.y = 260};
+		})
+	},
+
 	this.checkPlayhead = function(x) {
 		var currentColumn;
 		if (x <40) { currentColumn = 5};
@@ -92,7 +141,7 @@ var Container = function(x,y,width,height,color,numCells) {
 		if (x >360 && x < 450) {currentColumn = 3};
 		if (x >450 && x < 555) {currentColumn = 4};
 		if (x >530) {currentColumn = 5};
-		 console.log(currentColumn);
+		 // console.log(currentColumn);
 
 		return currentColumn;
 		
@@ -126,17 +175,23 @@ var Container = function(x,y,width,height,color,numCells) {
 }
 
 
-var Cell = function(x, y, width, height) {
+var Cell = function(x, y, width, height,sound) {
 	this.x 			= 	x;
 	this.y 			= 	y;
 	this.width 		=	width;
 	this.height 	= 	height;
 	this.cellColor 	=	[200,200,200];
-	console.log(this.width);
+	this.sound		=	sound;
+	this.playing	=	false;
+	// console.log(this.width);
 	// this.display = function() {
 	// 	fill(this._color);
 	// 	rect(this._x, this._y, this._width, this._height);
 	// }
+	this.cellPlayingFalse = function() {
+		console.log("see it");
+		if(this.playing = true) { this.playing =false};
+	}	
 
 }
 
@@ -166,6 +221,8 @@ var CellRow = function(options) {
 		this.move = function() {
 		console.log(mouseY);
 		this._startY = mouseY;
-	}	
+	}
+
+
 
 }
