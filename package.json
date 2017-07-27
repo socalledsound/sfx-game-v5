@@ -1,0 +1,23 @@
+{
+  "name": "boxes-in-boxes5",
+  "version": "1.0.0",
+  "description": "this is sort of a clone of typeshift by kyle gage, but with sound.",
+  "main": "cell.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socalledsound/sfx-game-1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/socalledsound/sfx-game-1/issues"
+  },
+  "homepage": "https://github.com/socalledsound/sfx-game-1#readme",
+  "devDependencies": {
+    "webpack": "^3.4.0",
+    "webpack-loader": "0.0.1"
+  }
+}

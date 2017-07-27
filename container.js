@@ -1,8 +1,9 @@
-var Container = function(x,y,width,height,color,numCells,sounds) {
+var Container = function(x,y,width,height,meridian,color,numCells,sounds) {
 	this._x = x;
 	this._y = y;
 	this._width = width;
 	this._height = height;
+	this.meridian = meridian;
 	this._color = color;
 	this.numCells = numCells;
 	this.draggable = false;
@@ -13,22 +14,136 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 	this.sounds = sounds;
 	this.upperTriangles;
 	this.lowerTriangles;
+	this.meridianKey = "Z";
+	this.containerSolved = false;
+
+	// this.scrambledKeys = ["A","A","A","A"];
 	// this.sound = new Howl({src:['audio/2017clapOS-DG3__1.mp3']});
 
 	this.initCells = function() {
+				 this.initKeys = Object.keys(this.sounds);
+				// this.scrambledKeys = this.initKeys.sort(function(){return Math.random() * 2 -1;});
+				// console.log(this.sounds);
+				//  console.log(this.scrambledKeys);
+				// console.log(this.scrambledKeys[0].charAt(0));
+
+			var scrambledOrder = this.initKeys.sort(function(){return Math.random() * 2 -1;});
+			
+			// console.log(scrambledOrder);
+			
+
 			for ( var i=0; i<this.numCells; i++) {
 				var x= this._x + (this._width/20);
 				var y= this._y + ((this._height/this.numCells)*i);
 				var width = this._width * 1.0;
-				var height = this._height * 0.25;
-				var keys = Object.keys(this.sounds);
+				var height = this._height/this.numCells;
+				
+				
+				// this.scrambledSounds=this.scrambleSounds(this.sounds,keys);
 				// var cellSounds = this.sounds;
-				var cellSound = this.sounds[keys[i]];
-				// console.log(cellSound);
+				var cellSound = this.sounds[scrambledOrder[i]];
+				// var cellKey = this.scrambledKeys[i].charAt(0);
+				 // console.log(cellSound);
 				// var sound = new Howl({src:[this.sound] });
 				this.cells[i] = new Cell(x, y, width, height, this.cellColor, cellSound);
-				// console.log(this.cells[i]);
+				 // console.log(this.cells[i]);
 			}
+	},
+
+	this.checkMeridian = function() {
+		// var that = this;
+		// console.log(this.meridian);
+		this.cells.forEach(function(cell,index){
+				// console.log(this.meridian);
+				// console.log(cell.y);
+			if((cell.y > (this.meridian-50)) && (cell.y < (this.meridian+40)) && !cell.playing) {
+				// cell.cellColor = [200,0,0];
+				cell.markAsMeridian();
+				// console.log(cell.key);
+				// console.log(this);
+				this.meridianKey = cell.key;
+				// console.log(this.meridianKey);
+				// return this.meridianKey
+				// return true
+				// cell.playing = true;
+				//   cell.sound.play();
+				// setTimeout(cell.cellPlayingFalse.bind(cell),1000);
+				// this.meridianKey =  this.scrambledKeys[0].charAt(0);
+			}
+			else {
+				cell.onMeridian =false;
+				cell.resetCell();
+				
+				// return false
+			}
+			// console.log(this.meridianKey);
+			 
+		}, this)	
+		return this.meridianKey
+		
+
+	},
+
+	this.checkSolution = function(key) {
+ //console.log(key);
+		this.cells.forEach(function(cell,index){
+
+			if(cell.key === key && cell.onMeridian) {
+
+				cell.markAsSolved();
+				 
+				 this.containerSolved = true;
+				 // console.log(this);
+				 // console.log(this.containerSolved);
+			}
+			else if (cell.key === key && !cell.onMeridian){
+				this.containerSolved = false;
+			}
+			else
+				{
+				 // console.log(cell.key);
+				 // console.log(key);
+				 cell.resetCell();
+				 // this.containerSolved = false;
+				 // console.log(this.containerSolved);
+			}
+			
+			// console.log(cell.solved);
+
+		}, this)
+
+
+	if(this.cells.indexOf(
+		function(cell){
+			cell.solved
+		}) != -1) {
+		console.log("whew")
+		};
+
+
+		 // if(this.cells.includes(function(cell) {
+		 // 	cell.solved=true;
+		 // }) ) 
+		 // 	{
+		 // 		this.containerSolved = true; 
+		 // 	}	
+		 // 	else {
+		 // 		this.containerSolved = false;
+		 // 	}
+	
+		 // console.log("inside func outside foreach" + this.containerSolved);
+
+	},
+
+
+
+
+	this.scrambleSounds = function(sounds,keys) {
+		
+			var scrambled  = sounds;
+
+			return scrambled;
+		
 	},
 
 	this.initContainerTriangles = function() {
@@ -59,84 +174,27 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 		this.initLowerTriangles = function() {
 			
 				var a = this._x + 20;
-				var b = this._y + 340;
+				var b = this._y + this._height+40;
 				var c = this._x + 50;
-				var d = this._y + 360;
+				var d = this._y + this._height+40+20;
 				var e = this._x + 80;
-				var f = this._y + 340;
+				var f = this._y + this._height+40;
 				var fill = this.interfaceColor;
 				var stroke = this.interfaceColor;	
 
 				this.lowerTriangles =  new Triangle(a,b,c,d,e,f,fill,stroke);
-				 console.log(this.lowerTriangles.b);			
+				 // console.log(this.lowerTriangles.b);			
 	},
 
 
-	this.moveCells = function() {
-		var that = this;
-			// console.log(this._y);
-			// console.log(that._y);
-			that.cells.forEach(function(cell,index){
-				// console.log(index);
-				cell.x= that._x + (that._width/20);
-				cell.y= that._y + ((that._height/that.numCells)*index);
-				cell.width = that._width * 1.0;
-				cell.height = that._height * 0.25;
-				console.log(cell.y);
-				})
-	},
-
-	this.moveTriangles = function() {
-		this.upperTriangles.a = this._x + 20;
-		this.upperTriangles.b = this._y - 20;
-		this.upperTriangles.c = this._x + 50;
-		this.upperTriangles.d = this._y - 40;
-		this.upperTriangles.e =  this._x + 80;
-		this.upperTriangles.f =  this._y  -20;
-
-		this.lowerTriangles.a = this._x + 20;
-		this.lowerTriangles.b = this._y + 340;
-		this.lowerTriangles.c = this._x + 50;
-		this.lowerTriangles.d = this._y + 360;
-		this.lowerTriangles.e = this._x + 80;
-		this.lowerTriangles.f = this._y + 340;
 
 
-	},
 
 
-	this.checkMeridian = function() {
-		var that = this;
-		this.cells.forEach(function(cell,index){
-			if(cell.y >200 && cell.y < 300 && !cell.playing) {
-				// cell.cellColor = [200,0,0];
-				cell.highlight();
-				// console.log(cell.sound);
-				cell.playing = true;
-				  cell.sound.play();
-				 // console.log(cell.cellPlayingFalse()); 	
-
-				   setTimeout(cell.cellPlayingFalse.bind(cell),1000);
-			}
-		})	
-
-	},
-
-	this.checkCellsForClick = function(){
+		this.checkCellsForClick = function(){
 		var that = this;
 			this.cells.forEach(function(cell,index){
-				
-
-				if( mouseX > cell.x && mouseX < cell.x +80 && mouseY > cell.y && mouseY < cell.y +80) {
-						cell.highlight();
-						// that.display();
-						setTimeout(cell.resetColor.bind(cell),100);
-						//setTimeout(that.display,100);
-						// if (!playing) {
-						cell.clicked = true;
-					//}
-				}	
-
+				cell.checkClick();
 			})
 
 	},
@@ -172,7 +230,7 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 	this.checkClick = function() {
 		if(this.checkRect(mouseX, mouseY,this._x,this._y,this._width,this._height)) {
 				this.draggable = true;
-				// console.log(this.draggable);
+				 console.log(this.draggable);
 		}
 	},
 
@@ -187,6 +245,7 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 		var that = this;
 		that.cells.forEach(function(cell,index){
 			if(cell.clicked && !cell.playing) {
+				// console.log(cell.sound);
 			 	cell.sound.play();
 				cell.playing= true;
 			}
@@ -208,25 +267,64 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 		this.draggable = false;
 	},
 
+	this.moveCells = function() {
+		var that = this;
+			// console.log(this._y);
+			// console.log(that._y);
+			that.cells.forEach(function(cell,index){
+				// console.log(index);
+				cell.x= that._x + (that._width/20);
+				cell.y = that._y + ((that._height/that.numCells)*index);
+				cell.width = that._width * 1.0;
+				cell.height = that._height/that.numCells;
+				 // console.log(cell.y);
+				})
+	},
+
+	this.moveTriangles = function() {
+		this.upperTriangles.a = this._x + 20;
+		this.upperTriangles.b = this._y - 20;
+		this.upperTriangles.c = this._x + 50;
+		this.upperTriangles.d = this._y - 40;
+		this.upperTriangles.e =  this._x + 80;
+		this.upperTriangles.f =  this._y  -20;
+
+		this.lowerTriangles.a = this._x + 20;
+		this.lowerTriangles.b = this._y + this._height+40;
+		this.lowerTriangles.c = this._x + 50;
+		this.lowerTriangles.d = this._y + this._height+40+20;
+		this.lowerTriangles.e = this._x + 80;
+		this.lowerTriangles.f = this._y + this._height+40;
+
+
+	},
+
 	this.move = function() {
-		console.log(mouseY);
-		if(this._y > 0 && this._y < (600 - this._height)) {
+		// console.log(mouseY);
+		if(this._y > 0 && this._y < (1000 - this._height)) {
 		this._y = mouseY;
 		this.moveCells();
 		};
 
-		if (this._y < 10) {this._y=10};
+		if (this._y < 40) {this._y=40};
 
-		if (this._y > (600 - this._height)) {this._y = (600 - this._height)};
+		if (this._y > (360)) {this._y = (360 )};
 		this.settleInGrid();
 		
 	},
 
 	this.settleInGrid = function() {
-		if(this._y > 0 && this._y < 90 ) 	{this._y = 20};
-		if(this._y > 90 && this._y <180 ) 	{this._y = 100};
-		if(this._y > 180 && this._y <270 ) 	{this._y = 180};
-		if(this._y > 270 && this._y <360 ) 	{this._y = 260};
+		// if(this._y > 0 && this._y < 90 ) 	{this._y = 20};
+		// if(this._y > 90 && this._y <180 ) 	{this._y = 100};
+		// if(this._y > 180 && this._y <270 ) 	{this._y = 180};
+		// if(this._y > 270 && this._y <360 ) 	{this._y = 260};
+
+		if(this._y > 0 && this._y < 120 ) 	{this._y = 40};
+		if(this._y > 110 && this._y <200 ) 	{this._y = 120};
+		if(this._y > 200 && this._y <280 ) 	{this._y = 200};
+		if(this._y > 280 && this._y <360 ) 	{this._y = 280};
+		if(this._y > 360 && this._y <440 ) 	{this._y = 360};
+
 	},
 
 	this.settleCellsInGrid = function() {
@@ -270,6 +368,8 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 		});
 	}
 
+
+
 	// this.highlight = function() {
 
 	// 	this.cells.forEach(function(cell,index){
@@ -310,129 +410,4 @@ var Container = function(x,y,width,height,color,numCells,sounds) {
 
 
 }
-
-var Interface = function() {
-	this.playButton;
-	this.playButtonClicked = false;
-	this.playButtonPaused = true;
-	
-
-	this.initPlayButton = function() {
-			console.log(height);
-			this.playButton = new PlayButton( 360,700,80 ,80 );
-
-	},
-
-	this.displayInterface = function() {
-
-				strokeWeight(1);
-			stroke(interfaceColor);
-			fill(background_color);
-			rect(this.playButton.x,this.playButton.y,this.playButton.width,this.playButton.height);
-			fill(255);
-			triangle(this.playButton.x+30,this.playButton.y+20,this.playButton.x+30,this.playButton.y+60,this.playButton.x+60,this.playButton.y+40);
-
-
-	},
-
-	this.checkPlayButton = function() {
-				if(checkRect(mouseX, mouseY,this.playButton.x,this.playButton.y,this.playButton.width,this.playButton.height)) {
-				this.playButtonClicked = true;
-				 console.log(this.playButtonClicked);
-		}
-	}
-
-
-
-};
-
-var Cell = function(x, y, width, height, color, sound) {
-	this.x 			= 	x;
-	this.y 			= 	y;
-	this.width 		=	width;
-	this.height 	= 	height;
-	this.cellColor 	=	color;
-	this.sound		=	new Howl({src:[sound]});
-	this.playing	=	false;
-	this.clicked 	=	false;
-	// console.log(this.width);
-	// this.display = function() {
-	// 	fill(this._color);
-	// 	rect(this._x, this._y, this._width, this._height);
-	// }
-	this.cellPlayingFalse = function() {
-		console.log("see it");
-		if(this.playing = true) { this.playing =false};
-	},
-
-	this.highlight = function() {
-
-		this.cellColor = [23,225,239];
-
-	},
-
-	this.resetColor = function() {
-		console.log("see reset");
-		this.cellColor = [2,12,51];
-
-	}	
-
-
-}
-
-var PlayButton = function(x,y,width,height) {
-	this.x 			= 	x;
-	this.y 			= 	y;
-	this.width 		=	width;
-	this.height 	= 	height;
-	this.paused 	= 	true;
-}
-
-var Triangle = function(a,b,c,d,e,f,fillColor,strokeColor) {
-			this.a = a;
-			this.b = b;
-			this.c = c;
-			this.d = d;
-			this.e = e;
-			this.f = f;
-			this.fillColor=fillColor;
-			this.strokeColor = strokeColor;
-
-				fill(this.fillColor);
-				stroke(this.strokeColor);
-				triangle(this.a,this.b,this.c,this.d,this.e,this.f);
-
-};
-
-var CellRow = function(options) {
-	this._x = options.x;
-	this._y = options.y;
-	this._containerWidth = options.width;
-	this._containerHeight = options.height;
-	this._color = options.color;
-	this._numSquares = options.numSquares;
-
-
-
-	this.display = function() {
-		
-		for (var i=0; i <this._numSquares; i++) {
-			fill(this._color);
-			rect(this._x+10, (this._y)*(i+1)-(20*i), this._containerWidth, this._containerHeight);
-
-
-		}
-		
-
-	},
-
-		this.move = function() {
-		console.log(mouseY);
-		this._startY = mouseY;
-	}
-
-
-
-}
-
 
